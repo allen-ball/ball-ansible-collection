@@ -1,0 +1,16 @@
+# main.yml
+---
+# See https://stackoverflow.com/questions/18839509/where-can-i-get-a-list-of-ansible-pre-defined-variables.
+- name: "{{ inventory_hostname }}.yml"
+  vars:
+    file: /tmp/{{ inventory_hostname }}.yml
+  block:
+    - name: "{{ inventory_hostname }}:{{ file }}"
+      ansible.builtin.template:
+        src: template.yml
+        dest: "{{ file }}"
+    - name: "{{ file }}"
+      ansible.builtin.fetch:
+        src: "{{ file }}"
+        dest: /tmp/
+        flat: true
