@@ -3,9 +3,9 @@ ball-ansible-collection
 
 A collection of miscellaneous [Ansible] roles.
 
-| Role                                         | Description                      |
-|----------------------------------------------|----------------------------------|
-| [roles/dump-variables](roles/dump-variables) | [AWS EC2 User Data Shell Script] |
+| Role                                         | Description               |
+|----------------------------------------------|---------------------------|
+| [roles/dump-variables](roles/dump-variables) | Dumps [Ansible] variables |
 
 Add to `requirements.yml`:
 
