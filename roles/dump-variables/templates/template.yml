@@ -3,8 +3,43 @@
 # hostvars[inventory_hostname]
 {{ hostvars[inventory_hostname] | to_nice_yaml(indent=2) }}
 
-# vars
-{{ vars | to_nice_yaml(indent=2) }}
+# all variables (collected via varnames/vars lookups)
+{% set all_collected_vars = {} %}
+{# Collect Ansible facts and magic variables #}
+{% for var_name in lookup('varnames', '^ansible_', wantlist=True) %}
+{%   set _ = all_collected_vars.update({var_name: lookup('vars', var_name)}) %}
+{% endfor %}
+{# Collect playbook-related variables #}
+{% for var_name in lookup('varnames', '^playbook_', wantlist=True) %}
+{%   set _ = all_collected_vars.update({var_name: lookup('vars', var_name)}) %}
+{% endfor %}
+{# Collect inventory-related variables #}
+{% for var_name in lookup('varnames', '^inventory_', wantlist=True) %}
+{%   set _ = all_collected_vars.update({var_name: lookup('vars', var_name)}) %}
+{% endfor %}
+{# Collect group variables #}
+{% for var_name in lookup('varnames', '^group_', wantlist=True) %}
+{%   set _ = all_collected_vars.update({var_name: lookup('vars', var_name)}) %}
+{% endfor %}
+{# Collect role variables #}
+{% for var_name in lookup('varnames', '^role_', wantlist=True) %}
+{%   set _ = all_collected_vars.update({var_name: lookup('vars', var_name)}) %}
+{% endfor %}
+{# Collect omit placeholder #}
+{% for var_name in lookup('varnames', '^omit$', wantlist=True) %}
+{%   set _ = all_collected_vars.update({var_name: lookup('vars', var_name)}) %}
+{% endfor %}
+{# Collect user-defined variables (anything not starting with ansible_/playbook_/etc), excluding deprecated magic variables #}
+{% for var_name in lookup('varnames', '^[a-z]', wantlist=True) %}
+{%   if not var_name.startswith(('ansible_', 'playbook_', 'inventory_', 'group_', 'role_', 'hostvars')) and var_name not in ('vars', 'play_hosts') %}
+{%     set _ = all_collected_vars.update({var_name: lookup('vars', var_name)}) %}
+{%   endif %}
+{% endfor %}
+{# Collect variables starting with uppercase or underscore #}
+{% for var_name in lookup('varnames', '^[A-Z_]', wantlist=True) %}
+{%   set _ = all_collected_vars.update({var_name: lookup('vars', var_name)}) %}
+{% endfor %}
+{{ all_collected_vars | to_nice_yaml(indent=2) }}
 
 # hostvars
 {{ hostvars | to_nice_yaml(indent=2) }}

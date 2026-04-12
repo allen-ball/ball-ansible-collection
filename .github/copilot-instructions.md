@@ -5,10 +5,16 @@
 This is an Ansible collection repository containing miscellaneous utility roles for Ansible development and troubleshooting.
 
 - **Collection Namespace**: `ball.ansible`
-- **Version**: 1.0.0
+- **Version**: 1.0.1
 - **Primary Language**: YAML (Ansible playbooks and roles)
 - **Purpose**: Ansible development utilities and debugging tools
 - **License**: MIT
+- **Author**: Allen D. Ball <ball@hcf.dev>
+
+## Prerequisites
+
+- Ansible 2.9+
+- Python 3.8+
 
 ## Repository Structure
 
@@ -19,11 +25,6 @@ ball-ansible-collection/
 │   └── dump-variables/    # Variable debugging role
 └── .github/               # GitHub-specific files
 ```
-
-## Technology Stack
-
-- **Ansible**: 2.9+
-- **Python**: 3.8+
 
 ## Key Concepts
 
@@ -110,12 +111,39 @@ Support filtering variables by name or pattern (if implemented):
     variable_pattern: "^ansible_.*"
 ```
 
-## Testing Recommendations
+## Testing and Validation
 
-### For Roles:
-1. **Syntax Check**: `ansible-playbook --syntax-check playbook.yml`
-2. **Linting**: Use `ansible-lint` for best practices
-3. **Integration Testing**: Test in actual playbooks with various variable scenarios
+### Syntax Check
+```bash
+ansible-playbook --syntax-check playbook.yml
+```
+
+### Linting
+```bash
+ansible-lint roles/role-name/
+```
+
+### Testing a Role
+Create a test playbook:
+```yaml
+# test-playbook.yml
+---
+- hosts: localhost
+  connection: local
+  gather_facts: yes
+  collections:
+    - ball.ansible
+  roles:
+    - role: dump-variables
+```
+
+Run it:
+```bash
+ansible-playbook test-playbook.yml
+```
+
+### Integration Testing
+Test roles in actual playbooks with various variable scenarios to ensure idempotency and correct behavior.
 
 ## When Writing New Roles
 
@@ -206,11 +234,43 @@ Before committing changes:
 - [ ] License headers present where appropriate
 - [ ] Security warnings added for sensitive data handling
 
+## Role Implementation Details
+
+### dump-variables Role
+
+**Purpose**: Dumps all Ansible variables to a YAML file for debugging and troubleshooting.
+
+**How it works**:
+1. Uses a Jinja2 template (`templates/template.yml`) to render variables using the `varnames` and `vars` lookups (Ansible 2.9+)
+2. Creates temporary file on target host (`/tmp/{{ inventory_hostname }}.yml`)
+3. Fetches the file back to `/tmp/` on the control node
+4. Outputs three main sections:
+   - `hostvars[inventory_hostname]` - Variables specific to the current host
+   - `all variables` - All variables in scope, collected via varnames/vars lookups
+   - `hostvars` - Variables for all hosts in the inventory
+
+**Variable Collection Approach**:
+- Uses the modern `lookup('varnames', ...)` and `lookup('vars', ...)` pattern to avoid deprecated `vars` magic variable
+- Explicitly excludes deprecated magic variables (`vars`, `play_hosts`)
+- Collects variables by namespace prefix (`ansible_`, `playbook_`, `inventory_`, etc.)
+- Compatible with Ansible core 2.20+ deprecation warnings
+
+**Usage**:
+```yaml
+- hosts: all
+  collections:
+    - ball.ansible
+  roles:
+    - dump-variables
+```
+
+**Output**: Creates `/tmp/{{ inventory_hostname }}.yml` on the Ansible controller containing all variable data in YAML format.
+
 ## Collection Metadata
 
 **Namespace**: ball  
 **Name**: ansible  
-**Version**: 1.0.0  
+**Version**: 1.0.2  
 **Author**: Allen D. Ball <ball@hcf.dev>  
 **License**: MIT  
 **Repository**: https://github.com/allen-ball/ball-ansible-collection.git

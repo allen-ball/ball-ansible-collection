@@ -1,6 +1,6 @@
 # Ball Ansible Collection
 
-[![Version](https://img.shields.io/badge/version-1.0.1-blue.svg)](galaxy.yml)
+[![Version](https://img.shields.io/badge/version-1.0.2-blue.svg)](galaxy.yml)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
 A collection of miscellaneous [Ansible](https://www.ansible.com/) roles.
@@ -10,7 +10,7 @@ A collection of miscellaneous [Ansible](https://www.ansible.com/) roles.
 **Collection Details:**
 - **Namespace**: `ball`
 - **Name**: `ansible`
-- **Version**: 1.0.1
+- **Version**: 1.0.2
 - **License**: MIT
 - **Repository**: https://github.com/allen-ball/ball-ansible-collection.git
 - **Author**: Allen D. Ball <ball@hcf.dev>
